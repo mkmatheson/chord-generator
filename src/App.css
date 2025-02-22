@@ -1,3 +1,22 @@
+.fraction {
+  display: inline-block;
+}
+.fraction sup {
+  display: block;
+}
+.fraction sub {
+  display: block;
+}
+
+.chordLetter {
+  font-size: 30px;
+}
+
+.chord {
+  display: flex;
+  flex-direction: row;
+}
+
 .App {
   text-align: center;
 }
