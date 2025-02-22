@@ -3,10 +3,12 @@ const Checkbox = ({
   keyName,
   isSelected,
   onClick,
+  disabled
 }: {
   keyName: string;
   isSelected: boolean;
   onClick: () => void;
+  disabled?: boolean
 }) => {
   return (
     <div>
@@ -15,6 +17,7 @@ const Checkbox = ({
         name={keyName}
         onClick={onClick}
         checked={isSelected}
+        disabled={disabled}
       />
       <label>{keyName}</label>
     </div>

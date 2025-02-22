@@ -1,130 +1,220 @@
 import "./App.css";
-import React from "react";
+import React, { useEffect } from "react";
 import Checkbox from "./components/Checkbox";
 import { useState } from "react";
-
-type ChordConfig = {
-  name?: string;
-  inversion?: Array<string>;
-  numeral?: string;
-  symbol?: string;
-};
-
-const generateRandomArrayIdx = (length: number) =>
-  Math.floor(Math.random() * length);
-
-const keys = [
-  "C",
-  "C#",
-  "D",
-  "D#",
-  "E",
-  "F",
-  "F#",
-  "G",
-  "G#",
-  "A",
-  "A#",
-  "B",
-];
-const numerals = ["i", "ii", "iii", "iv", "v", "vi", "vii"];
-const qualities: { [chordType: string]: Array<string> } = {
-  triad: ["major", "minor", "dim", "aug"],
-  seventh: ["major", "dom", "minor", "half-dim", "dim"],
-};
-const chordTypes = ["triad", "seventh"];
-const inversions: { [chordType: string]: Array<Array<string>> } = {
-  triad: [[""], ["6"], ["6", "4"]],
-  seventh: [["7"], ["6", "5"], ["4", "3"], ["4", "2"]],
-};
-
-// todo: account for harmonic minor raised seventh
-// const modes = ["ionian", "aeolian"]
+import {
+  chordInversionsByChordType,
+  accidentals,
+  accidentalSymbols,
+  keys,
+  chordTypes,
+  chordQualitiesByType,
+  inversionNames,
+} from "./const";
+import {
+  generateAvailableKeys,
+  generateChord,
+  onItemClick,
+  selectKey,
+} from "./utils";
+import { ChordConfig, GeneratedKey, KeyNames } from "./types";
+import ResultChord from "./components/ResultChord";
 
 function App() {
-  // todo: establish base key major/minor mode before determining chord quality
-  // todo: modes?
-  // todo: show sharps or flats
-  // todo: turn on abbreviations i.e. 6 instead of 6/3
-  // todo: compute accidentals dynamically, probably using a flat/neutral/sharp semitone calculator
-  // probably will just need to check the interval between different notes
-  // this will allow me to provide a "check your answer"
-  // todo: generate chord according to scale (i.e. diminished should only appear for vii)
-  
 
-  const [activeKeys, setActiveKeys] = useState<Array<string>>([]);
+
+  const [activeKeys, setActiveKeys] = useState<GeneratedKey[]>([]); // C, Db, Eb
+  const [activeChordType, setActiveChordType] = useState<string>("triad"); // triad or seventh
   const [activeChord, setActiveChord] = useState<ChordConfig>({});
+  const [activeQualities, setActiveQualities] = useState<string[]>([]); // maj, min, dom
+  const [activeInversions, setActiveInversions] = useState<number[]>([]); // 0, 1, 2
+  const [accidentalType, setAccidentalType] = useState<number>(-1); // # or b
+  const [activeMode] = useState<string>("ionian");
 
-  const onKeyClick = (clickedKey: string) => {
-    if (activeKeys.includes(clickedKey)) {
-      const clickedKeyIdx = activeKeys.findIndex(
-        (currentKey) => currentKey === clickedKey
+  // show sharps or flats
+  useEffect(() => {
+    if (accidentalType > 0) {
+      setActiveKeys((activeKeys) =>
+        activeKeys.filter((key) => key.accidental !== -1 && !key.isEnharmonic)
       );
-      setActiveKeys((currentKeys) => [
-        ...currentKeys.slice(0, clickedKeyIdx),
-        ...currentKeys.slice(clickedKeyIdx + 1),
-      ]);
     } else {
-      setActiveKeys((currentKeys) => [...currentKeys, clickedKey]);
+      setActiveKeys((activeKeys) =>
+        activeKeys.filter((key) => key.accidental !== 1 && !key.isEnharmonic)
+      );
     }
-  };
-
-  const generateChord = () => {
-    const chordConfig: ChordConfig = {};
-
-    if (activeKeys.length > 0) {
-      chordConfig.name = activeKeys[generateRandomArrayIdx(activeKeys.length)];
-
-      const chordType = chordTypes[generateRandomArrayIdx(chordTypes.length)];
-      const inversionSet = inversions[chordType];
-      const selectedInversion =
-        inversionSet[generateRandomArrayIdx(inversionSet.length)];
-      chordConfig.inversion = selectedInversion;
-
-      const rawNumeral = numerals[generateRandomArrayIdx(numerals.length)];
-      const quality =
-        qualities[chordType][
-          generateRandomArrayIdx(qualities[chordType].length)
-        ];
-      const numeral = ["major", "aug"].includes(quality)
-        ? rawNumeral.toUpperCase()
-        : rawNumeral;
-      chordConfig.numeral = numeral;
-      if (quality === "aug") {
-        chordConfig.symbol = "+";
-      } else if (quality === "dim") {
-        chordConfig.symbol = "o";
-      } else if (quality === "half-dim") {
-        chordConfig.symbol = "ø";
-      }
-    }
-    setActiveChord(chordConfig);
-  };
+  }, [accidentalType]);
 
   return (
     <div className="App">
+      {/* Generate accidentals for notation */}
       <button
         onClick={() => {
-          if (activeKeys.length > 0) {
+          const availableKeys = generateAvailableKeys(
+            accidentalType,
+            activeMode
+          );
+          if (activeKeys.length === availableKeys.length) {
             setActiveKeys([]);
           } else {
-            setActiveKeys(keys);
+            setActiveKeys(availableKeys);
           }
         }}
       >
         Select / Deselect All
       </button>
-      {keys.map((key) => (
+      {accidentals.map((accidental) => (
+        <div key={accidental.name}>
+          <input
+            type="radio"
+            id={accidental.name}
+            name={accidental.name}
+            value={accidental.value}
+            checked={accidentalType === accidental.value}
+            onClick={() => setAccidentalType(accidental.value)}
+          />
+          <label htmlFor={accidental.name}>{accidental.name}</label>
+        </div>
+      ))}
+      {/* Generate all keys (tonics) */}
+      <div key={"all keys"}>
+        <input
+          type="radio"
+          id={"all keys"}
+          name={"all keys"}
+          value={0}
+          checked={accidentalType === 0}
+          onClick={() => setAccidentalType(0)}
+        />
+        <label htmlFor={"all keys"}>{"All keys"}</label>
+      </div>
+      {keys.map((key: KeyNames) => {
+        const selectedKey = selectKey(key, accidentalType, activeMode);
+        if (selectedKey) {
+          return (
+            <Checkbox
+              key={`${selectedKey.name}${accidentalSymbols[selectedKey.accidental || 0]}`}
+              disabled={selectedKey.name.includes("/")}
+              keyName={`${selectedKey.name}${accidentalSymbols[selectedKey.accidental || 0]}`}
+              isSelected={
+                !!activeKeys.find(
+                  (activeKey) =>
+                    activeKey.name === selectedKey.name &&
+                    activeKey.accidental === selectedKey.accidental
+                )
+              }
+              onClick={() => {
+                onItemClick(
+                  selectedKey,
+                  activeKeys,
+                  setActiveKeys,
+                  (currentKey: GeneratedKey) =>
+                    currentKey.name === selectedKey.name &&
+                    currentKey.accidental === selectedKey.accidental
+                );
+              }}
+            />
+          );
+        }
+        return undefined;
+      })}
+      {/* Generate chord lengths */}
+      {chordTypes.map((chordType: string) => (
+        <div key={chordType}>
+          <input
+            type="radio"
+            id={chordType}
+            name={chordType}
+            value={chordType}
+            checked={activeChordType === chordType}
+            onClick={() => setActiveChordType(chordType)}
+          />
+          <label>{chordType}</label>
+        </div>
+      ))}
+      {/* Generate chord qualities */}
+      <input
+        type="checkbox"
+        id="allQualities"
+        name="Select / Deselect all qualities"
+        checked={
+          activeQualities.length ===
+            chordQualitiesByType[activeChordType].chords.length &&
+          activeQualities.every((quality) =>
+            chordQualitiesByType[activeChordType].chords.includes(quality)
+          )
+        }
+        onClick={() => {
+          if (
+            activeQualities.length <
+            chordQualitiesByType[activeChordType].length
+          ) {
+            setActiveQualities(chordQualitiesByType[activeChordType].chords);
+          } else {
+            setActiveQualities([]);
+          }
+        }}
+      />
+      <label>{"Select / Deselect all qualities"}</label>
+      {chordQualitiesByType[activeChordType].chords.map((quality) => (
         <Checkbox
-          key={key}
-          keyName={key}
-          isSelected={activeKeys.includes(key)}
+          key={quality}
+          keyName={quality}
+          isSelected={activeQualities.includes(quality)}
           onClick={() => {
-            onKeyClick(key);
+            onItemClick(quality, activeQualities, setActiveQualities);
           }}
         />
       ))}
-      <button onClick={generateChord}>Generate Chord</button>
+      {/* Generate chord inversions */}
+      <input
+        type="checkbox"
+        id="allInversions"
+        name="Select / Deselect all inversions"
+        checked={
+          activeInversions.length ===
+            chordInversionsByChordType[activeChordType].length &&
+          chordInversionsByChordType[activeChordType].every((_, idx) =>
+            activeInversions.includes(idx)
+          )
+        }
+        onClick={() => {
+          if (
+            activeInversions.length <
+            chordInversionsByChordType[activeChordType].length
+          ) {
+            setActiveInversions(
+              chordInversionsByChordType[activeChordType].map((_, idx) => idx)
+            );
+          } else {
+            setActiveInversions([]);
+          }
+        }}
+      />
+      <label>{"Select / Deselect all inversions"}</label>
+      {chordInversionsByChordType[activeChordType].map((_, idx) => (
+        <Checkbox
+          key={inversionNames[idx]}
+          keyName={inversionNames[idx]}
+          isSelected={activeInversions.includes(idx)}
+          onClick={() =>
+            onItemClick(idx, activeInversions, setActiveInversions)
+          }
+        />
+      ))}
+      {/* Generate and display chord */}
+      <button
+        onClick={() =>
+          generateChord({
+            activeKeys,
+            activeInversions,
+            activeQualities,
+            activeChordType,
+            setActiveChord,
+          })
+        }
+      >
+        Generate Chord
+      </button>
       <button
         onClick={() => {
           setActiveChord({});
@@ -132,34 +222,7 @@ function App() {
       >
         Clear Chord
       </button>
-      <div className="chord">
-        <div>In the key of {activeChord.name}</div>
-        <span className="chordLetter">
-          {activeChord?.numeral && activeChord?.numeral}
-        </span>
-        {activeChord?.symbol && <sup>{activeChord?.symbol}</sup>}
-        <div className="fraction">
-          {activeChord?.inversion?.[0] && <sup>{activeChord.inversion[0]}</sup>}
-          {activeChord?.inversion?.[1] && <sub>{activeChord.inversion[1]}</sub>}
-        </div>
-
-        {/* {activeChord.inversion?.map((interval, idx) => 
-
-          idx % 2 == 0 ? (
-            <sup>
-              <span key={interval} className="inversion">
-                {interval}
-              </span>
-            </sup>
-          ) : (
-            <sub>
-              <span key={interval} className="inversion">
-                {interval}
-              </span>
-            </sub>
-          )
-        )} */}
-      </div>
+      <ResultChord activeChord={activeChord} />
     </div>
   );
 }
