@@ -5,6 +5,21 @@ import { KeyNote } from "./types";
 
 export const naturalKeys = ["C", "D", "E", "F", "G", "A", "B"];
 
+export const keyRelationToANatural = [
+  [-9, 3],
+  [-8, 4],
+  [-7, 5],
+  [-6, 6],
+  [-5, 7],
+  [-4, 8],
+  [-3, 9],
+  [-2, 10],
+  [-1, 11],
+  [0, 0],
+  [-11, 1],
+  [-10, 2],
+];
+
 export const keys = [
   [
     { key: "B", accidental: 1 },
@@ -34,6 +49,7 @@ export const keys = [
   [
     { key: "D", accidental: 1, modes: ["aeolian"] },
     { key: "E", accidental: -1, modes: ["ionian"] },
+    { key: "F", accidental: -2 },
   ],
   [
     { key: "F", accidental: -1 },
@@ -42,6 +58,7 @@ export const keys = [
   [
     { key: "E", accidental: 1 },
     { key: "F", accidental: 0, accidentalType: -1, modes: ["ionian"] },
+    { key: "G", accidental: -2 },
   ],
   [
     {
@@ -62,10 +79,12 @@ export const keys = [
   [
     { key: "G", accidental: 0, accidentalType: 1, modes: ["ionian"] },
     { key: "F", accidental: 2 },
+    { key: "A", accidental: -2 },
   ],
   [
     { key: "G", accidental: 1, modes: ["aeolian"] },
     { key: "A", accidental: -1, modes: ["ionian"] },
+    { key: "B", accidental: -3 },
   ],
   [
     { key: "A", accidental: 0, accidentalType: 1, modes: ["ionian"] },
@@ -151,6 +170,7 @@ export const accidentals = [
 ];
 
 export const accidentalSymbols: { [key: string]: string } = {
+  "-3": "𝄫♭",
   "-2": "𝄫",
   "-1": "♭",
   "0": "",
@@ -178,6 +198,8 @@ export const inversionNames: { [key: number]: string } = {
   2: "2nd",
   3: "3rd",
 };
+
+export const waveforms = ["Sine", "Square", "Sawtooth", "Triangle", "Custom"];
 
 // export const chordStructures: {
 //   [key: string]: { idx: number; intervals: Array<string> };

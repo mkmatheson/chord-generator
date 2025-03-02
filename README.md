@@ -12,3 +12,11 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 // todo: consider non-mode dependance
 // todo: account for harmonic min raised seventh
 // const modes = ["ionian", "aeolian"]
+
+// todo: add sounds
+
+// todo: chain chords into measures
+
+// todo: auto-generate new chords ever x seconds with tempo and measure
+
+todo: style and dark mode
