@@ -12,6 +12,10 @@
   font-size: 30px;
 }
 
+#generateChord {
+  background-color: green;
+}
+
 .chord {
   display: flex;
   flex-direction: row;

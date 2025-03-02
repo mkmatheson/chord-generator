@@ -256,6 +256,7 @@ function App() {
       </section>
       {/* Generate and display chord */}
       <button
+        id="generateChord"
         onClick={() => {
           stopOscillators(oscList);
           generateChord({
