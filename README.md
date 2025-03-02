@@ -20,3 +20,5 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 // todo: auto-generate new chords ever x seconds with tempo and measure
 
 todo: style and dark mode
+
+test
