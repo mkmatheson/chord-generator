@@ -17,6 +17,11 @@
   flex-direction: row;
 }
 
+.builder {
+  display: flex;
+  flex-direction: row;
+}
+
 .App {
   text-align: center;
 }
