@@ -1,7 +1,7 @@
-import "./App.css";
-import React, { useEffect, useRef } from "react";
-import Checkbox from "./components/Checkbox";
-import { useState } from "react";
+import './App.css';
+import React, { useEffect, useRef } from 'react';
+import Checkbox from './components/Checkbox';
+import { useState } from 'react';
 import {
   chordInversionsByChordType,
   accidentals,
@@ -10,17 +10,17 @@ import {
   chordTypes,
   chordQualitiesByType,
   inversionNames,
-  waveforms,
-} from "./const";
+  waveforms
+} from './const';
 import {
   generateAvailableKeys,
   generateChord,
   onItemClick,
   playTone,
-  selectKey,
-} from "./utils";
-import { ChordConfig, GeneratedKey, KeyNames } from "./types";
-import ResultChord from "./components/ResultChord";
+  selectKey
+} from './utils';
+import { ChordConfig, GeneratedKey, KeyNames } from './types';
+import ResultChord from './components/ResultChord';
 
 function App() {
   // to read:
@@ -54,15 +54,15 @@ function App() {
   // TODO: bug: if F is selected and i switch to sharps, it doesn't unselect
 
   const [activeKeys, setActiveKeys] = useState<GeneratedKey[]>([
-    { name: "C", accidental: 0 },
+    { name: 'C', accidental: 0 }
   ]); // C, Db, Eb
-  const [activeChordType, setActiveChordType] = useState<string>("triad"); // triad or seventh
+  const [activeChordType, setActiveChordType] = useState<string>('triad'); // triad or seventh
   const [activeChord, setActiveChord] = useState<ChordConfig>({});
-  const [activeQualities, setActiveQualities] = useState<string[]>(["maj"]); // maj, min, dom
+  const [activeQualities, setActiveQualities] = useState<string[]>(['maj']); // maj, min, dom
   const [activeInversions, setActiveInversions] = useState<number[]>([0]); // 0, 1, 2
   const [accidentalType, setAccidentalType] = useState<number>(-1); // # or b
-  const [activeMode] = useState<string>("ionian");
-  const [waveForm] = useState<OscillatorType>("sine");
+  const [activeMode] = useState<string>('ionian');
+  const [waveForm] = useState<OscillatorType>('sine');
   const [oscList, setOscList] = useState<OscillatorNode[]>([]);
 
   // play chord when change
@@ -74,7 +74,7 @@ function App() {
             freq: note.hz,
             audioContext: audioContextRef.current,
             waveFormType: waveForm,
-            gainNode: mainGainNodeRef.current,
+            gainNode: mainGainNodeRef.current
           });
         })
         .filter((osc) => !!osc) || []
@@ -128,16 +128,16 @@ function App() {
             </div>
           ))}
           {/* Generate all keys (tonics) */}
-          <div key={"all keys"}>
+          <div key={'all keys'}>
             <input
               type="radio"
-              id={"all keys"}
-              name={"all keys"}
+              id={'all keys'}
+              name={'all keys'}
               value={0}
               checked={accidentalType === 0}
               onClick={() => setAccidentalType(0)}
             />
-            <label htmlFor={"all keys"}>{"All keys"}</label>
+            <label htmlFor={'all keys'}>{'All keys'}</label>
           </div>
           {keys.map((key: KeyNames) => {
             const selectedKey = selectKey(key, accidentalType, activeMode);
@@ -145,7 +145,7 @@ function App() {
               return (
                 <Checkbox
                   key={`${selectedKey.name}${accidentalSymbols[selectedKey.accidental || 0]}`}
-                  disabled={selectedKey.name.includes("/")}
+                  disabled={selectedKey.name.includes('/')}
                   keyName={`${selectedKey.name}${accidentalSymbols[selectedKey.accidental || 0]}`}
                   isSelected={
                     !!activeKeys.find(
@@ -188,17 +188,9 @@ function App() {
         </div>
         <div className="column">
           {/* Generate chord qualities */}
-          <input
-            type="checkbox"
+          <button
             id="allQualities"
             name="Select / Deselect all qualities"
-            checked={
-              activeQualities.length ===
-                chordQualitiesByType[activeChordType].chords.length &&
-              activeQualities.every((quality) =>
-                chordQualitiesByType[activeChordType].chords.includes(quality)
-              )
-            }
             onClick={() => {
               if (
                 activeQualities.length <
@@ -211,8 +203,10 @@ function App() {
                 setActiveQualities([]);
               }
             }}
-          />
-          <label>{"Select / Deselect all qualities"}</label>
+          >
+            Select / Deselect all qualities
+          </button>
+
           {chordQualitiesByType[activeChordType].chords.map((quality) => (
             <Checkbox
               key={quality}
@@ -226,17 +220,9 @@ function App() {
         </div>
         <div className="column">
           {/* Generate chord inversions */}
-          <input
-            type="checkbox"
+          <button
             id="allInversions"
             name="Select / Deselect all inversions"
-            checked={
-              activeInversions.length ===
-                chordInversionsByChordType[activeChordType].length &&
-              chordInversionsByChordType[activeChordType].every((_, idx) =>
-                activeInversions.includes(idx)
-              )
-            }
             onClick={() => {
               if (
                 activeInversions.length <
@@ -251,8 +237,9 @@ function App() {
                 setActiveInversions([]);
               }
             }}
-          />
-          <label>{"Select / Deselect all inversions"}</label>
+          >
+            Select / Deselect all inversions
+          </button>
           {chordInversionsByChordType[activeChordType].map((_, idx) => (
             <Checkbox
               key={inversionNames[idx]}
@@ -276,7 +263,7 @@ function App() {
             activeInversions,
             activeQualities,
             activeChordType,
-            setActiveChord,
+            setActiveChord
           });
         }}
       >
