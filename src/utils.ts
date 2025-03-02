@@ -7,9 +7,9 @@ import {
   inversionNames,
   keyRelationToANatural,
   keys,
-  naturalKeys,
-} from "./const";
-import { ChordConfig, GeneratedKey, KeyNames, KeyNote } from "./types";
+  naturalKeys
+} from './const';
+import { ChordConfig, GeneratedKey, KeyNames, KeyNote } from './types';
 
 export const generateRandomArrayIdx = (length: number) =>
   Math.floor(Math.random() * length);
@@ -30,7 +30,7 @@ export const onItemClick = <T extends string | number | GeneratedKey>(
   if (clickedKeyIdx !== -1) {
     setActiveValues((currentKeys) => [
       ...currentKeys.slice(0, clickedKeyIdx),
-      ...currentKeys.slice(clickedKeyIdx + 1),
+      ...currentKeys.slice(clickedKeyIdx + 1)
     ]);
   } else {
     setActiveValues((prevActiveValues) => [...prevActiveValues, clickedValue]);
@@ -55,9 +55,9 @@ export const selectKey = (
               (newKeyNote) =>
                 `${newKeyNote.name}${accidentalSymbols[newKeyNote.accidental || 0]}`
             )
-            .join("/"),
+            .join('/'),
           accidental: 0,
-          isEnharmonic: true,
+          isEnharmonic: true
         };
       } else {
         const possibleKeyNote = key.find(
@@ -94,7 +94,7 @@ export const generateKey = (selectedKey: KeyNote): GeneratedKey => {
   return {
     name: selectedKey.key,
     accidental: selectedKey.accidental,
-    isEnharmonic: selectedKey.isEnharmonic,
+    isEnharmonic: selectedKey.isEnharmonic
   };
 };
 
@@ -103,7 +103,7 @@ export const generateChord = ({
   activeInversions,
   activeQualities,
   activeChordType,
-  setActiveChord,
+  setActiveChord
 }: {
   activeKeys: GeneratedKey[];
   activeInversions: Array<number>;
@@ -185,7 +185,7 @@ export const generateChord = ({
           )
         );
 
-        console.log("noteIdx", noteIdx);
+        console.log('noteIdx', noteIdx);
         const note = keys[noteIdx]?.find(
           (keyName) => keyName.key === naturalKeyLineup[naturalKeyIdx]
         );
@@ -196,7 +196,7 @@ export const generateChord = ({
         if (note) {
           chordLetters.push({
             name: note.key,
-            accidental: note.accidental,
+            accidental: note.accidental
           });
         }
       });
@@ -218,7 +218,7 @@ export const generateChord = ({
       (key) => key === chordLetters[0].name
     );
     const hzKeyScale = shiftScale(hzKeyStartIdx, naturalKeys);
-    const A4idx = hzKeyScale.findIndex((key) => key === "A");
+    const A4idx = hzKeyScale.findIndex((key) => key === 'A');
 
     chordLetters.forEach((chordLetter) => {
       const naturalKeyIdx = hzKeyScale.findIndex(
@@ -259,30 +259,35 @@ export const playTone = ({
   freq = 0,
   audioContext,
   gainNode,
-  waveFormType,
+  waveFormType
 }: {
   freq?: number;
   audioContext: AudioContext | null;
   gainNode: GainNode | null;
   waveFormType: OscillatorType;
 }) => {
-  if(audioContext && gainNode){
+  if (audioContext && gainNode) {
     const osc = audioContext.createOscillator();
     osc.connect(gainNode);
-  
+
     // const type = wavePicker.options[wavePicker.selectedIndex].value;
-  
+
     // if (waveFormType === "custom") {
     //   osc.setPeriodicWave(customWaveform);
     // } else {
     osc.type = waveFormType;
     // }
-  
+
     osc.frequency.value = freq;
     osc.start();
-  
+
     return osc;
   }
-  return
-  
+  return;
+};
+
+export const stopOscillators = (oscList: OscillatorNode[]) => {
+  oscList.forEach((osc) => {
+    osc.stop();
+  });
 };

@@ -17,7 +17,8 @@ import {
   generateChord,
   onItemClick,
   playTone,
-  selectKey
+  selectKey,
+  stopOscillators
 } from './utils';
 import { ChordConfig, GeneratedKey, KeyNames } from './types';
 import ResultChord from './components/ResultChord';
@@ -67,6 +68,7 @@ function App() {
 
   // play chord when change
   useEffect(() => {
+    stopOscillators(oscList);
     setOscList(
       activeChord.notes
         ?.map((note) => {
@@ -255,9 +257,7 @@ function App() {
       {/* Generate and display chord */}
       <button
         onClick={() => {
-          oscList.forEach((osc) => {
-            osc.stop();
-          });
+          stopOscillators(oscList);
           generateChord({
             activeKeys,
             activeInversions,
@@ -271,6 +271,7 @@ function App() {
       </button>
       <button
         onClick={() => {
+          stopOscillators(oscList);
           setActiveChord({});
         }}
       >
@@ -278,16 +279,26 @@ function App() {
       </button>
       <ResultChord activeChord={activeChord} />
       <br />
-      <button onClick={() => {}}>play chord</button>
       <button
         onClick={() => {
-          oscList.forEach((osc) => {
-            osc.stop();
-          });
+          stopOscillators(oscList);
+          setOscList(
+            activeChord.notes
+              ?.map((note) => {
+                return playTone({
+                  freq: note.hz,
+                  audioContext: audioContextRef.current,
+                  waveFormType: waveForm,
+                  gainNode: mainGainNodeRef.current
+                });
+              })
+              .filter((osc) => !!osc) || []
+          );
         }}
       >
-        stop noise
+        play chord
       </button>
+      <button onClick={() => stopOscillators(oscList)}>stop noise</button>
       <br />
       <div>
         <span>Current waveform: </span>
