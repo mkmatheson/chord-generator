@@ -263,6 +263,7 @@ function App() {
             <li>Modes?</li>
             <li>when displaying flats and sharps, prefer the sharp or flat of an enharmonic key, allowing for all keys to be selected</li>
             <li>Bug: if a flat key is still selected when switching to sharps, it is still included in the list of potential chord roots</li>
+            <li>Have an alert if no keys/qualities/inversions get selected upon chord generation</li>
           </ul>
         </div>
       </section>
