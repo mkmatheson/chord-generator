@@ -253,6 +253,18 @@ function App() {
             />
           ))}
         </div>
+        <div className="column">
+          TODOS:
+          <ul>
+            <li>Make the site look pretty</li>
+            <li>Allow for selecting triads AND sevenths (and 9ths? 11ths?)</li>
+            <li>Keep sound off upon chord re-generation</li>
+            <li>Roman numeral notation</li>
+            <li>Modes?</li>
+            <li>when displaying flats and sharps, prefer the sharp or flat of an enharmonic key, allowing for all keys to be selected</li>
+            <li>Bug: if a flat key is still selected when switching to sharps, it is still included in the list of potential chord roots</li>
+          </ul>
+        </div>
       </section>
       {/* Generate and display chord */}
       <button
