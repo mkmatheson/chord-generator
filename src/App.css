@@ -1,3 +1,9 @@
+ul {
+  list-style: circle;
+  margin-left: 20px;
+  text-align: left;
+}
+
 .fraction {
   display: inline-block;
 }
