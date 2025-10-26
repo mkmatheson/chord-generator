@@ -29,8 +29,7 @@ const Todos = () => {
           displays.
         </li>
         <li>
-          update material UI to "@mui/material": "^6.4.6" whenever they fix
-          @next
+          Select a random assortment of each chord option
         </li>
       </ul>
     </div>

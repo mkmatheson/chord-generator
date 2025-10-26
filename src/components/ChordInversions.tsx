@@ -1,6 +1,7 @@
 import { chordInversionsByChordType, inversionNames } from '../const';
 import { onItemClick } from '../utils';
 import Checkbox from './Checkbox';
+import ToggleAllButton from './ToggleAllButton';
 
 const ChordInversions = ({
   activeChordType,
@@ -14,9 +15,8 @@ const ChordInversions = ({
   return (
     <div className="column">
       {/* Generate chord inversions */}
-      <button
-        id="allInversions"
-        name="Select / Deselect all inversions"
+      <ToggleAllButton
+        toggleSubject="Inversions"
         onClick={() => {
           if (
             activeInversions.length <
@@ -29,9 +29,7 @@ const ChordInversions = ({
             setActiveInversions([]);
           }
         }}
-      >
-        Select / Deselect all inversions
-      </button>
+      />
       {chordInversionsByChordType[activeChordType].map((_, idx) => (
         <Checkbox
           key={inversionNames[idx]}

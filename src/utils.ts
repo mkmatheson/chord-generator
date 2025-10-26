@@ -102,13 +102,13 @@ export const generateChord = ({
   activeKeys,
   activeInversions,
   activeQualities,
-  activeChordType,
+  activeChordTypes,
   setActiveChord
 }: {
   activeKeys: GeneratedKey[];
   activeInversions: Array<number>;
   activeQualities: Array<string>;
-  activeChordType: string;
+  activeChordTypes: string[];
   setActiveChord: React.Dispatch<React.SetStateAction<ChordConfig>>;
 }) => {
   const chordConfig: ChordConfig = {};
@@ -116,23 +116,35 @@ export const generateChord = ({
   if (
     activeKeys.length > 0 &&
     activeInversions.length > 0 &&
-    activeQualities.length > 0
+    activeQualities.length > 0 &&
+    activeChordTypes.length > 0
   ) {
     // set chord tonic
     const chordKeyIdx = generateRandomArrayIdx(activeKeys.length);
     const chordKey = activeKeys[chordKeyIdx];
     chordConfig.tonic = chordKey;
 
-    // set inversion (root, 1st, 2nd)
+    // set chord type
+    const chordTypeIdx = generateRandomArrayIdx(activeChordTypes.length);
+
+    const shouldFilterInversions =
+      activeChordTypes[chordTypeIdx] === 'triad' &&
+      activeInversions.includes(3);
+
+    // set inversion (root, 1st, 2nd, 3rd if a seventh chord)
     const inversionIdx =
       activeInversions[
-        generateRandomArrayIdx(activeInversions.sort((a, b) => a - b).length)
+        generateRandomArrayIdx(
+          activeInversions
+            .filter((inversion) => !(shouldFilterInversions && inversion === 3))
+            .sort((a, b) => a - b).length
+        )
       ];
 
     chordConfig.inversionName = inversionNames[inversionIdx];
 
     chordConfig.inversion =
-      chordInversionsByChordType[activeChordType][inversionIdx];
+      chordInversionsByChordType[activeChordTypes[chordTypeIdx]][inversionIdx];
 
     // set chord quality
     const quality =
@@ -172,7 +184,7 @@ export const generateChord = ({
     // find each key by iterating through the key array containing enharmonical equivalents
     // and select keys that match correct natural key names and semitone intervals
     chordQualities[quality].semiToneSpacing
-      .slice(0, chordQualitiesByType[activeChordType].length - 1)
+      .slice(0, chordQualitiesByType[activeChordTypes[chordTypeIdx]].length - 1)
       .forEach((spacing) => {
         currentIdx = (currentIdx + spacing) % 12;
         naturalKeyIdx += 2;
@@ -185,13 +197,11 @@ export const generateChord = ({
           )
         );
 
-        console.log('noteIdx', noteIdx);
         const note = keys[noteIdx]?.find(
           (keyName) => keyName.key === naturalKeyLineup[naturalKeyIdx]
         );
 
         // RESUME: why does the hz only generate 880?
-        console.log(keyRelationToANatural[noteIdx]);
 
         if (note) {
           chordLetters.push({
@@ -237,7 +247,6 @@ export const generateChord = ({
         440 * 2 ** ((0 + keyRelationToANatural[keyIdx][hzOffset]) / 12);
     });
     chordConfig.notes = chordLetters;
-    console.log(chordLetters);
   }
   setActiveChord(chordConfig);
 };
@@ -290,4 +299,11 @@ export const stopOscillators = (oscList: OscillatorNode[]) => {
   oscList.forEach((osc) => {
     osc.stop();
   });
+};
+
+export const checkChordTypes = (chordTypes: string[]) => {
+  if (chordTypes.includes('seventh')) {
+    return 'seventh';
+  }
+  return 'triad';
 };

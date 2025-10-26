@@ -1,6 +1,7 @@
 import { chordQualitiesByType } from '../const';
 import { onItemClick } from '../utils';
 import Checkbox from './Checkbox';
+import ToggleAllButton from './ToggleAllButton';
 
 const ChordQualities = ({
   activeQualities,
@@ -14,9 +15,8 @@ const ChordQualities = ({
   return (
     <div className="column">
       {/* Generate chord qualities */}
-      <button
-        id="allQualities"
-        name="Select / Deselect all qualities"
+      <ToggleAllButton
+        toggleSubject="Qualities"
         onClick={() => {
           if (
             activeQualities.length <
@@ -27,10 +27,7 @@ const ChordQualities = ({
             setActiveQualities([]);
           }
         }}
-      >
-        Select / Deselect all qualities
-      </button>
-
+      />
       {chordQualitiesByType[activeChordType].chords.map((quality) => (
         <Checkbox
           key={quality}

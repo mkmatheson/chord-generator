@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { waveforms } from '../const';
 import { ChordConfig } from '../types';
 import { stopOscillators } from '../utils';
@@ -8,13 +9,21 @@ const ChordDisplay = ({
   oscList,
   generateChord,
   clearChord,
-  playChord
+  playChord,
+  isPaused,
+  isMuted,
+  setIsMuted,
+  setWaveform
 }: {
   activeChord: ChordConfig;
   oscList: OscillatorNode[];
   generateChord: () => void;
   clearChord: () => void;
-  playChord: () => void;
+  playChord: (isMuted: boolean) => void;
+  isPaused: boolean;
+  isMuted: boolean;
+  setIsMuted: () => void;
+  setWaveform: (waveform: OscillatorType) => void;
 }) => {
   return (
     <div>
@@ -24,12 +33,19 @@ const ChordDisplay = ({
       <button onClick={clearChord}>Clear Chord</button>
       <ResultChord activeChord={activeChord} />
       <br />
-      <button onClick={playChord}>play chord</button>
-      <button onClick={() => stopOscillators(oscList)}>stop noise</button>
+      <button onClick={() => playChord(isMuted)}>
+        {isPaused ? '⏵' : '⏹'}
+      </button>
+      <button onClick={setIsMuted}>{isMuted ? 'unmute' : 'mute'}</button>
       <br />
       <div>
         <span>Current waveform: </span>
-        <select name="waveform">
+        <select
+          name="waveform"
+          onChange={(event) =>
+            setWaveform(event.target.value as OscillatorType)
+          }
+        >
           {waveforms.map((waveform) => (
             <option key={waveform} value={waveform.toLowerCase()}>
               {waveform}

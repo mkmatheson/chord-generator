@@ -1,7 +1,12 @@
 import './App.css';
 import React, { useEffect, useRef } from 'react';
 import { useState } from 'react';
-import { generateChord, playTone, stopOscillators } from './utils';
+import {
+  checkChordTypes,
+  generateChord,
+  playTone,
+  stopOscillators
+} from './utils';
 import { ChordConfig, GeneratedKey } from './types';
 import Notes from './components/Notes';
 import ChordLengths from './components/ChordLengths';
@@ -24,8 +29,6 @@ function App() {
     mainGainNodeRef.current.gain.value = 0.1;
   }, []);
 
-  console.log({ audioContextRef, mainGainNodeRef });
-
   // let noteFreq = null;
   // let customWaveform = null;
   // let sineTerms = null;
@@ -43,30 +46,34 @@ function App() {
   const [activeKeys, setActiveKeys] = useState<GeneratedKey[]>([
     { name: 'C', accidental: 0 }
   ]); // C, Db, Eb
-  const [activeChordType, setActiveChordType] = useState<string>('triad'); // triad or seventh
+  const [activeChordTypes, setActiveChordTypes] = useState<string[]>(['triad']); // triad or seventh
   const [activeChord, setActiveChord] = useState<ChordConfig>({});
   const [activeQualities, setActiveQualities] = useState<string[]>(['maj']); // maj, min, dom
   const [activeInversions, setActiveInversions] = useState<number[]>([0]); // 0, 1, 2
   const [accidentalType, setAccidentalType] = useState<number>(-1); // # or b
   const [activeMode] = useState<string>('ionian');
-  const [waveForm] = useState<OscillatorType>('sine');
+  const [waveForm, setWaveform] = useState<OscillatorType>('sine');
   const [oscList, setOscList] = useState<OscillatorNode[]>([]);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isPaused, setIsPaused] = useState(true);
 
   // play chord when change
   useEffect(() => {
     stopOscillators(oscList);
-    setOscList(
-      activeChord.notes
-        ?.map((note) => {
-          return playTone({
-            freq: note.hz,
-            audioContext: audioContextRef.current,
-            waveFormType: waveForm,
-            gainNode: mainGainNodeRef.current
-          });
-        })
-        .filter((osc) => !!osc) || []
-    );
+    if (!isMuted && !isPaused) {
+      setOscList(
+        activeChord.notes
+          ?.map((note) => {
+            return playTone({
+              freq: note.hz,
+              audioContext: audioContextRef.current,
+              waveFormType: waveForm,
+              gainNode: mainGainNodeRef.current
+            });
+          })
+          .filter((osc) => !!osc) || []
+      );
+    }
   }, [activeChord.notes, waveForm]);
 
   // show sharps or flats
@@ -82,6 +89,8 @@ function App() {
     }
   }, [accidentalType]);
 
+  const activeChordType = checkChordTypes(activeChordTypes);
+
   return (
     <div className="App">
       <section className="builder">
@@ -93,8 +102,8 @@ function App() {
           setAccidentalType={setAccidentalType}
         />
         <ChordLengths
-          activeChordType={activeChordType}
-          setActiveChordType={setActiveChordType}
+          activeChordTypes={activeChordTypes}
+          setActiveChordTypes={setActiveChordTypes}
         />
         <ChordQualities
           activeChordType={activeChordType}
@@ -106,26 +115,44 @@ function App() {
           activeInversions={activeInversions}
           setActiveInversions={setActiveInversions}
         />
-        <Todos />
       </section>
       {/* Generate and display chord */}
+
       <ChordDisplay
         activeChord={activeChord}
         oscList={oscList}
-        playChord={() => {
+        isPaused={isPaused}
+        isMuted={isMuted}
+        setIsMuted={() => {
+          if (!isMuted) {
+            stopOscillators(oscList);
+            setIsPaused(true);
+          }
+          setIsMuted((muteValue) => !muteValue);
+        }}
+        setWaveform={(waveform: OscillatorType) => setWaveform(waveform)}
+        playChord={(isMuted = false) => {
           stopOscillators(oscList);
-          setOscList(
-            activeChord.notes
-              ?.map((note) => {
-                return playTone({
-                  freq: note.hz,
-                  audioContext: audioContextRef.current,
-                  waveFormType: waveForm,
-                  gainNode: mainGainNodeRef.current
-                });
-              })
-              .filter((osc) => !!osc) || []
-          );
+          if (isPaused) {
+            if (!isMuted) {
+              setOscList(
+                activeChord.notes
+                  ?.map((note) => {
+                    return playTone({
+                      freq: note.hz,
+                      audioContext: audioContextRef.current,
+                      waveFormType: waveForm,
+                      gainNode: mainGainNodeRef.current
+                    });
+                  })
+                  .filter((osc) => !!osc) || []
+              );
+            }
+            setIsPaused(false);
+          } else {
+            stopOscillators(oscList);
+            setIsPaused(true);
+          }
         }}
         clearChord={() => {
           stopOscillators(oscList);
@@ -133,15 +160,17 @@ function App() {
         }}
         generateChord={() => {
           stopOscillators(oscList);
+          setIsPaused(false);
           generateChord({
             activeKeys,
             activeInversions,
             activeQualities,
-            activeChordType,
+            activeChordTypes,
             setActiveChord
           });
         }}
       />
+      <Todos />
     </div>
   );
 }

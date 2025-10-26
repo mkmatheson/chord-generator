@@ -46,19 +46,6 @@ const ResultChord = ({ activeChord }: { activeChord: ChordConfig }) => {
             : 'Select a value from each column and click Generate Chord'}
         </div>
       )}
-
-      <label>
-        <input
-          type="checkbox"
-          value=""
-          checked={playSound}
-          onChange={({ target }) => {
-            setPlaySound(target.checked);
-          }}
-        />
-        <div />
-        <span>Toggle me</span>
-      </label>
     </div>
   );
 };

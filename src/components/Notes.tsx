@@ -2,6 +2,7 @@ import { accidentals, accidentalSymbols, keys } from '../const';
 import { GeneratedKey, KeyNames } from '../types';
 import { generateAvailableKeys, onItemClick, selectKey } from '../utils';
 import Checkbox from './Checkbox';
+import ToggleAllButton from './ToggleAllButton';
 
 const Notes = ({
   accidentalType,
@@ -19,7 +20,8 @@ const Notes = ({
   return (
     <div className="column">
       {/* Generate accidentals for notation */}
-      <button
+      <ToggleAllButton
+        toggleSubject="Keys"
         onClick={() => {
           const availableKeys = generateAvailableKeys(
             accidentalType,
@@ -31,9 +33,7 @@ const Notes = ({
             setActiveKeys(availableKeys);
           }
         }}
-      >
-        Select / Deselect All
-      </button>
+      />
       {accidentals.map((accidental) => (
         <div key={accidental.name}>
           <input
