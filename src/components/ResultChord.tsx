@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import { accidentalSymbols } from "../const";
-import { ChordConfig } from "../types";
+import React, { useState } from 'react';
+import { accidentalSymbols } from '../const';
+import { ChordConfig } from '../types';
 
 const ResultChord = ({ activeChord }: { activeChord: ChordConfig }) => {
   const [showNotes, setShowNotes] = useState(true);
+  const [playSound, setPlaySound] = useState(true);
   return (
     <div>
       <div className="chord"></div>
@@ -42,7 +43,7 @@ const ResultChord = ({ activeChord }: { activeChord: ChordConfig }) => {
           <br />
           {activeChord.tonic && activeChord.inversion && activeChord.notes
             ? `${activeChord.inversionName} inversion`
-            : "Select a value from each column and click Generate Chord"}
+            : 'Select a value from each column and click Generate Chord'}
         </div>
       )}
     </div>
