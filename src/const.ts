@@ -165,7 +165,7 @@ export const chordQualities: {
 
 // export const keySignatureWithAccidentalOrder = ["F", "B", "E", "A", "D", "G"]
 
-export const accidentals = [
+export const accidentals: { name: 'flats' | 'sharps'; value: -1 | 1 }[] = [
   { name: 'flats', value: -1 },
   { name: 'sharps', value: 1 }
 ];

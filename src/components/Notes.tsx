@@ -42,7 +42,12 @@ const Notes = ({
             name={accidental.name}
             value={accidental.value}
             checked={accidentalType === accidental.value}
-            onClick={() => setAccidentalType(accidental.value)}
+            onClick={() => {
+              setAccidentalType(accidental.value);
+              setActiveKeys(
+                activeKeys.filter((key) => key.accidental === accidental.value)
+              );
+            }}
           />
           <label htmlFor={accidental.name}>{accidental.name}</label>
         </div>
